@@ -1,12 +1,15 @@
 import numpy as np
-import Image
+from PIL import Image
 
 class EigenFace(object):
 
-    def __init__():
-        
+    def __init__(self):
+        pass
 
     def TrainWithImage(self, imageName):
-        img = Image.open(imageName).convert('RGBA')
+        img = Image.open(imageName).convert('L')
         imgAry = np.array(img)
+        print imgAry[:,1]
     
+ef = EigenFace()
+ef.TrainWithImage("../Images/zuck.jpg")
