@@ -1,8 +1,10 @@
 import numpy as np
 import Image
-from Image import 
 
 class EigenFace(object):
+
+    def __init__():
+        
 
     def TrainWithImage(self, imageName):
         img = Image.open(imageName).convert('RGBA')
