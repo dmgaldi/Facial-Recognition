@@ -6,10 +6,13 @@ class EigenFace(object):
     def __init__(self):
         pass
 
-    def TrainWithImage(self, imageName):
-        img = Image.open(imageName).convert('L')
-        imgAry = np.array(img)
-        print imgAry[:,1]
+    def TrainWithImages(self, imageNames, res=None):
+        assert(res is not None)
+        trainingMatrix = np.zeros(shape=(res[0] * res[1], len(imageNames)))
+        
+        for i, imageName in enumerate(imageNames):
+            img = Image.open(imageName).convert('L')        
+            trainingMatrix[:,i] = np.array(img)
     
 ef = EigenFace()
-ef.TrainWithImage("../Images/zuck.jpg")
+ef.TrainWithImage(["../Images/zuck.jpg"])
