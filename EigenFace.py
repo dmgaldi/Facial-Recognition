@@ -1,4 +1,5 @@
 import numpy as np
+import Utility
 from PIL import Image
 
 class EigenFace(object):
@@ -33,19 +34,10 @@ class EigenFace(object):
    
             trainingMatrix[:,i] = np.ndarray.flatten(np.array(img))
 
-        mean = np.mean(trainingMatrix, axis=1)
-        
         ## Compute Covariance
-        for i in range(0, N):
-            print trainingMatrix[:,i]
-            if i == 0:
-                S = np.dot(trainingMatrix[:,i] - mean, np.transpose(trainingMatrix[:,i] - mean)) ## Covariance Matrix
-            else:
-                S += np.dot(trainingMatrix[:,i] - mean, np.transpose(trainingMatrix[:,i] - mean))
+        S = Utility.Covariance(trainingMatrix)
+        print S
 
-        print S
-        S /= N
-        print S
     
 ef = EigenFace()
 ef.TrainWithImages(["Images/zuck.jpg"], (634, 396))
