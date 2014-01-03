@@ -37,7 +37,7 @@ class EigenFace(object):
             trainingMatrix[:,i] = np.ndarray.flatten(np.array(img))
 
         ## Perform PCA (limited by colums of trainingMatrix)
-        eigvals, eigvectors = Utility.PCA(trainingMatrix, Y)
+        eigvals, eigvectors = Utility.PCA(trainingMatrix, N)
 
         self.res = res
         self.imageNames = imageNames
@@ -56,4 +56,5 @@ class EigenFace(object):
                 self.TrainWithImages(imageNames, res)
 
 ef = EigenFace()
-ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg"], (402, 402))
+ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg", "Images/brin.jpg"], (402, 402))
+print ef.eigenfaces
