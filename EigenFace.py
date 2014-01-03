@@ -56,4 +56,4 @@ class EigenFace(object):
                 self.TrainWithImages(imageNames, res)
 
 ef = EigenFace()
-ef.TrainWithImages(["Images/zuck.jpg"], (634, 396))
+ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg"], (402, 402))
