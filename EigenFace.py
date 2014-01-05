@@ -12,7 +12,9 @@ class EigenFace(object):
 
     def TrainWithImages(self, imageNames, res=None):
         """
-        Trains the EigenFace model with a set of images with the same resolution
+        Trains the EigenFace model with a set of images with the same resolution.
+        
+        Raises a value error if any image has a resolution inconsistent with the res parameter
 
         Parameters: imageNames: a python list of image file locations
 
@@ -55,8 +57,20 @@ class EigenFace(object):
             else:
                 self.imageNames.append(imageName)
                 self.TrainWithImages(imageNames, res)
+                
+    def AssessImage(self, imageName):
+        img = Image.open(imageName).convert('L')
+        if self.res is None:
+            raise ValueError("The model has not yet been trained")
+        elif self.res != img.size:
+            raise ValueError("Invalid dimensions fro new image")
+        else:
+            
 
 ef = EigenFace()
 ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg", "Images/brin.jpg"], (402, 402))
 Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,0], (402, 402))), "Eigenfaces")
+Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,1], (402, 402))), "Eigenfaces")
+Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,2], (402, 402))), "Eigenfaces")
+
 print ef.eigenfaces

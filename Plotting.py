@@ -1,6 +1,7 @@
-import matplotlib.cm
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
 
 def ShowImage(m, title):
-    cm.subplot(title=title, images=[m], rows=1, cols=1, 
-            sptitle="Eigenface", colormap=cm.jet)
+    plt.imshow(m, cmap = cm.Greys_r)
+    plt.show()
 
