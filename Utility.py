@@ -23,4 +23,13 @@ def PCA(m, n):
     else:
         C = np.dot(m, np.transpose(m))
         eigvals, eigvectors = np.linalg.eigh(C)
+    print Normalize(np.resize(eigvectors[:,0], (402, 402)))
     return eigvals, eigvectors
+
+def Normalize(m, low=0, high=255):
+    min, max = np.min(m), np.max(m)
+    m = m - min
+    m = m / (max - min)
+    m = m * (high - low)
+    m = m + low
+    return m

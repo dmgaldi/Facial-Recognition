@@ -1,5 +1,6 @@
 import numpy as np
 import Utility
+import Plotting
 from PIL import Image
 
 class EigenFace(object):
@@ -44,7 +45,7 @@ class EigenFace(object):
         self.eigenfaces = eigvectors.copy()
 
     def TrainSingleImage(self, imageName):
-        img = Image.open(imageName.convert('L'))
+        img = Image.open(imageName).convert('L')
         if self.res is None:
             self.res = (img.size[0], img.size[1])
             self.imageNames.append(imageName)
@@ -57,4 +58,5 @@ class EigenFace(object):
 
 ef = EigenFace()
 ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg", "Images/brin.jpg"], (402, 402))
+Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,0], (402, 402))), "Eigenfaces")
 print ef.eigenfaces
