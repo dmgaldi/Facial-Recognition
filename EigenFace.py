@@ -9,12 +9,13 @@ class EigenFace(object):
         self.eigenfaces = []
         self.imageNames = []
         self.res = None
+        self.mean = 0
 
     def TrainWithImages(self, imageNames, res=None):
         """
         Trains the EigenFace model with a set of images with the same resolution.
         
-        Raises a value error if any image has a resolution inconsistent with the res parameter
+        Raises a value error if any image has a resolution inconsistent with the res parameter.
 
         Parameters: imageNames: a python list of image file locations
 
@@ -40,7 +41,7 @@ class EigenFace(object):
             trainingMatrix[:,i] = np.ndarray.flatten(np.array(img))
 
         ## Perform PCA (limited by colums of trainingMatrix)
-        eigvals, eigvectors = Utility.PCA(trainingMatrix, N)
+        eigvals, eigvectors, self.mean = Utility.PCA(trainingMatrix, N)
 
         self.res = res
         self.imageNames = imageNames
@@ -63,12 +64,14 @@ class EigenFace(object):
         if self.res is None:
             raise ValueError("The model has not yet been trained")
         elif self.res != img.size:
-            raise ValueError("Invalid dimensions fro new image")
+            raise ValueError("Invalid dimensions for new image")
         else:
-            
+            imgAry = np.ndarray.flatten(np.array(img))
+            print Utility.Project(imgAry, self.eigenfaces, self.mean)
 
 ef = EigenFace()
 ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg", "Images/brin.jpg"], (402, 402))
+ef.AssessImage("Images/zuck.jpg")
 Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,0], (402, 402))), "Eigenfaces")
 Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,1], (402, 402))), "Eigenfaces")
 Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,2], (402, 402))), "Eigenfaces")
