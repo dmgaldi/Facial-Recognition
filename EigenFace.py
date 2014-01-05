@@ -5,11 +5,12 @@ from PIL import Image
 
 class EigenFace(object):
 
-    def __init__(self):
+    def __init__(self, res=None):
         self.eigenfaces = []
         self.imageNames = []
         self.res = None
         self.mean = 0
+        
 
     def TrainWithImages(self, imageNames, res=None):
         """
@@ -57,23 +58,47 @@ class EigenFace(object):
                 raise ValueError("Invalid dimensions for new image")
             else:
                 self.imageNames.append(imageName)
-                self.TrainWithImages(imageNames, res)
+                self.TrainWithImages(self.imageNames, res)
                 
     def AssessImage(self, imageName):
-        img = Image.open(imageName).convert('L')
+        """
+        Projects the query image into the subspace obtained from PCA. Determines
+        
+        which of the training images is closest in terms of Euclidean distance
+        """
+        queryImg = Image.open(imageName).convert('L')
         if self.res is None:
             raise ValueError("The model has not yet been trained")
-        elif self.res != img.size:
+        elif self.res != queryImg.size:
             raise ValueError("Invalid dimensions for new image")
         else:
-            imgAry = np.ndarray.flatten(np.array(img))
-            print Utility.Project(imgAry, self.eigenfaces, self.mean)
+            queryAry = np.ndarray.flatten(np.array(queryImg))
+            shortestDist = 1e300
+            nearest = None
+            for i, name in enumerate(self.imageNames):
+                img = Image.open(name).convert('L')
+                x = Utility.Project(np.ndarray.flatten(np.array(img)), self.eigenfaces, self.mean) - Utility.Project(queryAry, self.eigenfaces, self.mean)
+                dist = np.dot(x.T, x)
+                if dist < shortestDist:
+                    shortestDist = dist
+                    nearest = self.imageNames[i]
+            Plotting.ShowImage(np.array(Image.open(imageName).convert('L')), "Matching Image")
+            x = Utility.Project(np.ndarray.flatten(np.array(img)), self.eigenfaces, self.mean)
+            reconstructed = x[0] * self.eigenfaces[:,0]
+            for i in range (1, self.eigenfaces.shape[1]):
+                reconstructed = reconstructed + x[i] * self.eigenfaces[:,i]
+            Plotting.ShowImage(np.resize(Utility.Normalize(reconstructed), self.res), "Reconstructed Image")
+            Plotting.ShowImage(np.array(Image.open(self.imageNames[i]).convert('L')), "Reconstructed Image")
+
+                
+    def Reset(self):
+        self.eigenfaces = []
+        self.imageNames = []
+        self.res = None
+        self.mean = 0
 
 ef = EigenFace()
-ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg", "Images/brin.jpg"], (402, 402))
+ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg", "Images/brin.jpg", "Images/knuth.jpg"], (300, 300))
+#Plotting.ShowImage(np.resize(Utility.Normalize(ef.eigenfaces[:,0]), (402, 402)), "Test")
 ef.AssessImage("Images/zuck.jpg")
-Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,0], (402, 402))), "Eigenfaces")
-Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,1], (402, 402))), "Eigenfaces")
-Plotting.ShowImage(Utility.Normalize(np.resize(ef.eigenfaces[:,2], (402, 402))), "Eigenfaces")
 
-print ef.eigenfaces
