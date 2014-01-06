@@ -23,6 +23,8 @@ def PCA(m, n):
     else:
         C = np.dot(m, np.transpose(m))
         eigvals, eigvectors = np.linalg.eigh(C)
+        
+    eigvectors = eigvectors[:,np.argsort(eigvals)]
     return eigvals, eigvectors, mean
 
 def Normalize(m, low=0, high=255):
@@ -38,8 +40,8 @@ def Normalize(m, low=0, high=255):
 
 def Project(x, w, mean=0):
     scalars = np.dot((x-mean).T, w)
+    #return scalars
     proj = np.zeros(shape=(x.shape[0]))
     for i in xrange(w.shape[1]):
-        scalars[i] = scalars[i] / np.linalg.norm(scalars[i])
         proj = proj + scalars[i] * w[:,i]
     return proj
