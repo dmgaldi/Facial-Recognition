@@ -8,11 +8,12 @@ class EigenFace(object):
     def __init__(self, res=None):
         self.eigenfaces = []
         self.imageNames = []
-        self.res = None
+        self.imageLabels = []
+        self.res = res
         self.mean = 0
         
 
-    def TrainWithImages(self, imageNames, res=None):
+    def TrainWithImages(self, imageNames, imageLabels, res=None):
         """
         Trains the EigenFace model with a set of images with the same resolution.
         
@@ -24,8 +25,8 @@ class EigenFace(object):
                     
         Returns: A numpy array of EigenFaces
         """
-        
-        assert(res is not None)
+        if len(imageNames) != len(imageLabels):
+            raise ValueError("There is not a label provided for each image")
 
         N = len(imageNames) #number of Training Images
         X = res[0] #rows of pixels of image
@@ -35,6 +36,10 @@ class EigenFace(object):
         
         for i, imageName in enumerate(imageNames):
             img = Image.open(imageName).convert('L')
+            
+            ## If no default resolution is set default to the first image
+            if self.res is None:
+                self.res = img.size
 
             if not (img.size[0] == res[0] and img.size[1] == res[1]):
                 raise ValueError("Invalid dimensions for image " + str(i))
@@ -46,9 +51,10 @@ class EigenFace(object):
 
         self.res = res
         self.imageNames = imageNames
+        self.imageLabels = imageLabels
         self.eigenfaces = eigvectors.copy()
 
-    def TrainSingleImage(self, imageName):
+    def TrainSingleImage(self, imageName, imageLabel):
         img = Image.open(imageName).convert('L')
         if self.res is None:
             self.res = (img.size[0], img.size[1])
@@ -58,7 +64,8 @@ class EigenFace(object):
                 raise ValueError("Invalid dimensions for new image")
             else:
                 self.imageNames.append(imageName)
-                self.TrainWithImages(self.imageNames, res)
+                self.imageLabels.append(imageLabel)
+                self.TrainWithImages(self.imageNames, self.imageLabels, res)
                 
     def AssessImage(self, imageName):
         """
@@ -75,6 +82,9 @@ class EigenFace(object):
             queryAry = np.ndarray.flatten(np.array(queryImg))
             shortestDist = 1e300
             nearest = None
+            person = None
+            #print Utility.Project(queryAry, self.eigenfaces, self.mean)
+            
             for i, name in enumerate(self.imageNames):
                 img = Image.open(name).convert('L')
                 x = Utility.Project(np.ndarray.flatten(np.array(img)), self.eigenfaces, self.mean) - Utility.Project(queryAry, self.eigenfaces, self.mean)
@@ -82,23 +92,25 @@ class EigenFace(object):
                 if dist < shortestDist:
                     shortestDist = dist
                     nearest = self.imageNames[i]
-            Plotting.ShowImage(np.array(Image.open(imageName).convert('L')), "Matching Image")
+                    person = self.imageLabels[i]
+                    print person
+            
+            Plotting.ShowImage(np.array(Image.open(imageName).convert('L')), "Query Image")
             x = Utility.Project(np.ndarray.flatten(np.array(img)), self.eigenfaces, self.mean)
-            reconstructed = x[0] * self.eigenfaces[:,0]
-            for i in range (1, self.eigenfaces.shape[1]):
-                reconstructed = reconstructed + x[i] * self.eigenfaces[:,i]
-            Plotting.ShowImage(np.resize(Utility.Normalize(reconstructed), self.res), "Reconstructed Image")
-            Plotting.ShowImage(np.array(Image.open(self.imageNames[i]).convert('L')), "Reconstructed Image")
+            Plotting.ShowImage(np.array(Image.open(nearest).convert('L')), "Matching Image")
+            print self.imageLabels
+            print "This is most likely a picture of " + person
 
                 
     def Reset(self):
         self.eigenfaces = []
         self.imageNames = []
+        self.imageLabels = []
         self.res = None
         self.mean = 0
 
 ef = EigenFace()
-ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg", "Images/brin.jpg", "Images/knuth.jpg"], (300, 300))
+ef.TrainWithImages(["Images/zuck.jpg", "Images/gates.jpg", "Images/brin.jpg", "Images/knuth.jpg"], ['Zuckerberg', 'Gates', 'Brin', 'Knuth'], (300, 300))
 #Plotting.ShowImage(np.resize(Utility.Normalize(ef.eigenfaces[:,0]), (402, 402)), "Test")
-ef.AssessImage("Images/zuck.jpg")
+ef.AssessImage("Images/gates.jpg")
 

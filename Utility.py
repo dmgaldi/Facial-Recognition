@@ -37,4 +37,9 @@ def Normalize(m, low=0, high=255):
     return m
 
 def Project(x, w, mean=0):
-    return np.dot((x-mean).T, w)
+    scalars = np.dot((x-mean).T, w)
+    proj = np.zeros(shape=(x.shape[0]))
+    for i in xrange(w.shape[1]):
+        scalars[i] = scalars[i] / np.linalg.norm(scalars[i])
+        proj = proj + scalars[i] * w[:,i]
+    return proj
